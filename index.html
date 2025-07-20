@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agence Créative 3D Interactive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'deep-purple': '#6243A9',
+              'soft-lavender': '#F1EDFA',
+              'neon-lime': '#D1F20F',
+              'charcoal-black': '#323035',
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              arabic: ['Cairo', 'sans-serif'],
+            },
+            animation: {
+              'float': 'float 6s ease-in-out infinite',
+              'particle-drift': 'particle-drift linear infinite',
+              'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+              'head-bob': 'head-bob 2.5s ease-in-out infinite',
+              'typing': 'typing 2.5s ease-in-out infinite',
+              'steam-rise': 'steam-rise 3s ease-out infinite',
+              'screen-flicker': 'screen-flicker 5s steps(1) infinite',
+              'sheen': 'sheen 1.5s forwards',
+              'text-shimmer': 'text-shimmer 3s ease-in-out infinite alternate',
+              'background-pan': 'background-pan 3s linear infinite',
+              'sparkle-fade-in-out': 'sparkle-fade-in-out 1.5s ease-in-out forwards',
+              'flip-out': 'flip-out 0.5s ease-in forwards',
+              'fly-in': 'fly-in 0.5s ease-out 0.3s forwards',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0px)' },
+                '50%': { transform: 'translateY(-20px)' },
+              },
+              'particle-drift': {
+                '0%': { transform: 'translate(0, 0)', opacity: 1 },
+                '100%': { transform: 'translate(var(--particle-end-x), var(--particle-end-y))', opacity: 0 },
+              },
+              'pulse-glow': {
+                  '0%, 100%': { boxShadow: '0 0 15px 5px rgba(209, 242, 15, 0.3)' },
+                  '50%': { boxShadow: '0 0 30px 10px rgba(209, 242, 15, 0.6)' },
+              },
+              'head-bob': {
+                  '0%, 100%': { transform: 'translateY(0) rotate(-2deg)' },
+                  '50%': { transform: 'translateY(-4px) rotate(2deg)' },
+              },
+              'typing': {
+                  '0%, 40%, 100%': { transform: 'translateY(0px)' },
+                  '50%, 90%': { transform: 'translateY(-2px)' },
+              },
+              'steam-rise': {
+                  '0%': { opacity: 0, transform: 'translateY(0) scale(0.5)' },
+                  '50%': { opacity: 0.7, transform: 'translateY(-10px) scale(1)' },
+                  '100%': { opacity: 0, transform: 'translateY(-20px) scale(1.2)' },
+              },
+              'screen-flicker': {
+                  '0%, 100%': { opacity: 1 },
+                  '50%': { opacity: 0.95 },
+              },
+              sheen: {
+                '0%': { transform: 'translateX(-120%)' },
+                '100%': { transform: 'translateX(120%)' },
+              },
+              'text-shimmer': {
+                'from': { 'text-shadow': '0 0 5px #fff, 0 0 10px #fff, 0 0 15px #D1F20F, 0 0 20px #D1F20F' },
+                'to': { 'text-shadow': '0 0 10px #fff, 0 0 20px #D1F20F, 0 0 30px #D1F20F, 0 0 40px #6243A9' },
+              },
+              'background-pan': {
+                '0%': { 'background-position': '0% 50%' },
+                '50%': { 'background-position': '100% 50%' },
+                '100%': { 'background-position': '0% 50%' },
+              },
+              'sparkle-fade-in-out': {
+                '0%': { opacity: 0, transform: 'scale(0)' },
+                '50%': { opacity: 1, transform: 'scale(1)' },
+                '100%': { opacity: 0, transform: 'scale(0)' },
+              },
+              'flip-out': {
+                'from': { transform: 'rotateY(0deg)', opacity: 1 },
+                'to': { transform: 'rotateY(90deg)', opacity: 0 },
+              },
+              'fly-in': {
+                'from': { transform: 'translateY(30px) scale(0.9)', opacity: 0 },
+                'to': { transform: 'translateY(0) scale(1)', opacity: 1 },
+              },
+            }
+          }
+        }
+      }
+    </script>
+    <style type="text/tailwindcss">
+      @layer base {
+        html {
+          scroll-behavior: smooth;
+        }
+        body {
+          @apply bg-soft-lavender text-charcoal-black font-sans;
+        }
+        body.dark {
+          @apply bg-charcoal-black text-soft-lavender;
+        }
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        ::-webkit-scrollbar-track {
+            @apply bg-soft-lavender dark:bg-charcoal-black;
+        }
+        ::-webkit-scrollbar-thumb {
+            @apply bg-deep-purple/50 rounded-full border-2 border-soft-lavender dark:border-charcoal-black;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            @apply bg-deep-purple;
+        }
+      }
+      @layer components {
+        .text-glow-and-lift {
+            text-shadow: 0px 0px 15px rgba(209, 242, 15, 0.4), 0px 2px 5px rgba(50, 48, 53, 0.75), 0px 0px 5px rgba(255, 255, 255, 0.5);
+        }
+        .text-lift-effect {
+            text-shadow: 0px 2px 4px rgba(50, 48, 53, 0.75);
+        }
+        .icon-lift-effect {
+            filter: drop-shadow(0px 2px 3px rgba(50, 48, 53, 0.75));
+        }
+        .animated-grid-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(to right, rgba(98, 67, 169, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(98, 67, 169, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: background-pan 10s linear infinite;
+        }
+        .dark .animated-grid-background {
+             background-image:
+                linear-gradient(to right, rgba(209, 242, 15, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(209, 242, 15, 0.05) 1px, transparent 1px);
+        }
+        .animated-gradient-border {
+            background: linear-gradient(90deg, #D1F20F, #6243A9, #D1F20F);
+            background-size: 200% 200%;
+        }
+        /* For 3D flip card */
+        .perspective {
+            perspective: 1000px;
+        }
+        .preserve-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.10.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="light">
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
