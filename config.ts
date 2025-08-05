@@ -1,0 +1,1 @@
+export const CONTACT_PHONE_NUMBER = '212703026422';

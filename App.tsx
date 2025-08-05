@@ -23,6 +23,7 @@ import { BrandIcon, WhatsAppIcon } from './components/icons';
 import { useTranslations } from './hooks/useTranslations';
 import Navigation from './components/Navigation';
 import MenuToggle from './components/MenuToggle';
+import { CONTACT_PHONE_NUMBER } from './config';
 
 const StickyElements = ({ onMenuToggle, isMenuOpen }: { onMenuToggle: () => void; isMenuOpen: boolean }) => {
     const { t } = useTranslations();
@@ -42,7 +43,7 @@ const StickyElements = ({ onMenuToggle, isMenuOpen }: { onMenuToggle: () => void
                 <MenuToggle onToggle={onMenuToggle} isOpen={isMenuOpen} />
             </div>
             <a
-                href="https://wa.me/212703026422" // Updated WhatsApp number
+                href={`https://wa.me/${CONTACT_PHONE_NUMBER}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={t('whatsapp_cta')}
