@@ -1,11 +1,19 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useTranslations } from '../hooks/useTranslations';
 import type { BlogPost } from '../types';
-import { CloseIcon } from './icons';
-import { generateBlogPosts } from '../services/gemini';
+import { CloseIcon, SearchIcon } from './icons';
 
-// Note: The `t()` function for translations is kept for static UI elements,
-// but the dynamic content (title, summary, etc.) now comes directly from the post object.
+const blogPostsData: BlogPost[] = Array.from({ length: 78 }, (_, i) => ({
+  id: `post${i + 1}`,
+  titleKey: `post${i + 1}_title`,
+  summaryKey: `post${i + 1}_summary`,
+  contentKey: `post${i + 1}_content`,
+  authorKey: `post${i + 1}_author`,
+  dateKey: `post${i + 1}_date`,
+  imageUrl: `https://picsum.photos/seed/blog${i + 1}/600/400`,
+}));
+
+const POSTS_PER_PAGE = 6;
 
 const BlogPostCard: React.FC<{ post: BlogPost; onReadMore: (post: BlogPost) => void }> = ({ post, onReadMore }) => {
     const { t } = useTranslations();
@@ -40,14 +48,14 @@ const BlogPostCard: React.FC<{ post: BlogPost; onReadMore: (post: BlogPost) => v
             <div className="absolute -inset-px bg-gradient-to-r from-neon-lime via-deep-purple to-neon-lime rounded-2xl blur opacity-0 group-hover:opacity-75 transition duration-500 animate-background-pan" style={{ backgroundSize: '200%' }}></div>
             <div className="relative bg-white/50 dark:bg-deep-purple/20 border border-deep-purple/10 dark:border-transparent rounded-2xl flex flex-col h-full overflow-hidden">
                 <div className="w-full h-48 overflow-hidden">
-                    <img src={post.imageUrl} alt={post.titleKey} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    <img src={post.imageUrl} alt={t(post.titleKey)} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 </div>
                 <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="text-xl font-bold text-charcoal-black dark:text-soft-lavender mb-2">{post.titleKey}</h3>
+                    <h3 className="text-xl font-bold text-charcoal-black dark:text-soft-lavender mb-2">{t(post.titleKey)}</h3>
                     <div className="text-xs text-charcoal-black/60 dark:text-soft-lavender/60 mb-3">
-                        <span>{post.authorKey}</span> &bull; <span>{post.dateKey}</span>
+                        <span>{t(post.authorKey)}</span> &bull; <span>{t(post.dateKey)}</span>
                     </div>
-                    <p className="text-charcoal-black/80 dark:text-soft-lavender/80 text-sm mb-4 flex-grow">{post.summaryKey}</p>
+                    <p className="text-charcoal-black/80 dark:text-soft-lavender/80 text-sm mb-4 flex-grow">{t(post.summaryKey)}</p>
                     <button onClick={() => onReadMore(post)} className="mt-auto text-neon-lime font-bold hover:underline self-start">
                         {t('blog_read_more')}
                     </button>
@@ -87,14 +95,14 @@ const BlogModal: React.FC<{ post: BlogPost; onClose: () => void }> = ({ post, on
                 dir={dir}
             >
                 <div className="relative w-full h-64 md:h-80 rounded-t-2xl overflow-hidden">
-                    <img src={post.imageUrl} alt={post.titleKey} className="w-full h-full object-cover"/>
+                    <img src={post.imageUrl} alt={t(post.titleKey)} className="w-full h-full object-cover"/>
                      <div className="absolute inset-0 bg-gradient-to-t from-charcoal-black/70 to-transparent"></div>
                 </div>
 
                 <div className="absolute top-0 left-0 right-0 p-8 text-white">
-                     <h2 className="text-3xl md:text-4xl font-black text-white">{post.titleKey}</h2>
+                     <h2 className="text-3xl md:text-4xl font-black text-white">{t(post.titleKey)}</h2>
                       <div className="text-sm text-soft-lavender/80 mt-2">
-                        <span>{post.authorKey}</span> &bull; <span>{post.dateKey}</span>
+                        <span>{t(post.authorKey)}</span> &bull; <span>{t(post.dateKey)}</span>
                     </div>
                 </div>
 
@@ -107,7 +115,7 @@ const BlogModal: React.FC<{ post: BlogPost; onClose: () => void }> = ({ post, on
                 </button>
 
                 <div className="p-8 overflow-y-auto">
-                    <div className="prose dark:prose-invert max-w-none text-charcoal-black dark:text-soft-lavender" dangerouslySetInnerHTML={{ __html: post.contentKey.replace(/\n/g, '<br />') }} />
+                    <div className="prose dark:prose-invert max-w-none text-charcoal-black dark:text-soft-lavender" dangerouslySetInnerHTML={{ __html: t(post.contentKey).replace(/\n/g, '<br />') }} />
                 </div>
             </div>
         </div>
@@ -117,26 +125,17 @@ const BlogModal: React.FC<{ post: BlogPost; onClose: () => void }> = ({ post, on
 const Blog: React.FC<{ id: string }> = ({ id }) => {
   const { t } = useTranslations();
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [visiblePostsCount, setVisiblePostsCount] = useState(POSTS_PER_PAGE);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        setIsLoading(true);
-        const fetchedPosts = await generateBlogPosts();
-        setPosts(fetchedPosts);
-      } catch (err) {
-        setError('Failed to fetch blog posts. Please try again later.');
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchPosts();
-  }, []);
+  const filteredPosts = useMemo(() => {
+    return blogPostsData.filter(post => {
+      const title = t(post.titleKey).toLowerCase();
+      const summary = t(post.summaryKey).toLowerCase();
+      const query = searchQuery.toLowerCase();
+      return title.includes(query) || summary.includes(query);
+    });
+  }, [searchQuery, t]);
 
   const handleOpenModal = (post: BlogPost) => {
     setSelectedPost(post);
@@ -146,34 +145,59 @@ const Blog: React.FC<{ id: string }> = ({ id }) => {
     setSelectedPost(null);
   };
 
-  const renderContent = () => {
-    if (isLoading) {
-      return <p className="text-center text-neon-lime">Generating brilliant ideas...</p>;
-    }
-
-    if (error) {
-      return <p className="text-center text-red-500">{error}</p>;
-    }
-
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-        {posts.map(post => (
-          <BlogPostCard key={post.id} post={post} onReadMore={handleOpenModal} />
-        ))}
-      </div>
-    );
+  const handleViewMore = () => {
+    setVisiblePostsCount(prevCount => prevCount + POSTS_PER_PAGE);
   };
+
+  const postsToShow = filteredPosts.slice(0, visiblePostsCount);
 
   return (
     <section id={id} className="py-20 md:py-32 bg-soft-lavender/90 dark:bg-charcoal-black/90">
       <div className="container mx-auto px-6">
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-black text-charcoal-black dark:text-soft-lavender">
             {t('blog_title')}
           </h2>
           <p className="text-xl md:text-2xl text-neon-lime mt-4 font-bold">{t('blog_subtitle')}</p>
         </div>
-        {renderContent()}
+
+        <div className="mb-12 max-w-lg mx-auto">
+          <div className="relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder={t('blog_search_placeholder')}
+              className="w-full py-3 pl-12 pr-4 bg-white/50 dark:bg-deep-purple/20 text-charcoal-black dark:text-soft-lavender rounded-full border-2 border-transparent focus:border-neon-lime focus:outline-none focus:ring-0 transition-colors"
+            />
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-charcoal-black/50 dark:text-soft-lavender/50">
+              <SearchIcon />
+            </div>
+          </div>
+        </div>
+
+        {postsToShow.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {postsToShow.map(post => (
+              <BlogPostCard key={post.id} post={post} onReadMore={handleOpenModal} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-charcoal-black/80 dark:text-soft-lavender/80">
+            {t('blog_no_results')}
+          </p>
+        )}
+
+        {visiblePostsCount < filteredPosts.length && (
+          <div className="text-center mt-16">
+            <button
+              onClick={handleViewMore}
+              className="bg-neon-lime text-charcoal-black font-bold py-3 px-8 rounded-full hover:bg-opacity-80 transition-colors duration-300"
+            >
+              {t('blog_view_more')}
+            </button>
+          </div>
+        )}
       </div>
       {selectedPost && <BlogModal post={selectedPost} onClose={handleCloseModal} />}
     </section>
