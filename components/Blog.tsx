@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import { useTranslations } from '../hooks/useTranslations';
 import type { BlogPost } from '../types';
 import { SearchIcon } from './icons';
+import generatedPosts from '../content/generated-posts.json';
 
-const blogPostsData: BlogPost[] = Array.from({ length: 78 }, (_, i) => ({
+const originalBlogPosts: BlogPost[] = Array.from({ length: 78 }, (_, i) => ({
   id: `post${i + 1}`,
   titleKey: `post${i + 1}_title`,
   summaryKey: `post${i + 1}_summary`,
@@ -13,6 +14,9 @@ const blogPostsData: BlogPost[] = Array.from({ length: 78 }, (_, i) => ({
   dateKey: `post${i + 1}_date`,
   imageUrl: `https://picsum.photos/seed/blog${i + 1}/600/400`,
 }));
+
+// Combine the original posts with the new AI-generated posts
+const allBlogPosts = [...originalBlogPosts, ...generatedPosts];
 
 const POSTS_PER_PAGE = 6;
 
@@ -38,6 +42,12 @@ const BlogPostCard: React.FC<{ post: BlogPost }> = ({ post }) => {
         });
     };
 
+    // For generated posts, the content is not a key but the actual text.
+    const getTitle = (post: BlogPost) => post.id.startsWith('post') ? t(post.titleKey) : post.titleKey;
+    const getSummary = (post: BlogPost) => post.id.startsWith('post') ? t(post.summaryKey) : post.summaryKey;
+    const getAuthor = (post: BlogPost) => post.id.startsWith('post') ? t(post.authorKey) : post.authorKey;
+    const getDate = (post: BlogPost) => post.id.startsWith('post') ? t(post.dateKey) : post.dateKey;
+
     return (
         <div
             ref={cardRef}
@@ -49,16 +59,16 @@ const BlogPostCard: React.FC<{ post: BlogPost }> = ({ post }) => {
             <div className="absolute -inset-px bg-gradient-to-r from-neon-lime via-deep-purple to-neon-lime rounded-2xl blur opacity-0 group-hover:opacity-75 transition duration-500 animate-background-pan" style={{ backgroundSize: '200%' }}></div>
             <div className="relative bg-white/50 dark:bg-deep-purple/20 border border-deep-purple/10 dark:border-transparent rounded-2xl flex flex-col h-full overflow-hidden">
                 <Link to={`/blog/${post.id}`} className="block h-48 overflow-hidden">
-                    <img src={post.imageUrl} alt={t(post.titleKey)} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    <img src={post.imageUrl} alt={getTitle(post)} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 </Link>
                 <div className="p-6 flex flex-col flex-grow">
                     <h3 className="text-xl font-bold text-charcoal-black dark:text-soft-lavender mb-2">
-                        <Link to={`/blog/${post.id}`} className="hover:text-neon-lime transition-colors">{t(post.titleKey)}</Link>
+                        <Link to={`/blog/${post.id}`} className="hover:text-neon-lime transition-colors">{getTitle(post)}</Link>
                     </h3>
                     <div className="text-xs text-charcoal-black/60 dark:text-soft-lavender/60 mb-3">
-                        <span>{t(post.authorKey)}</span> &bull; <span>{t(post.dateKey)}</span>
+                        <span>{getAuthor(post)}</span> &bull; <span>{getDate(post)}</span>
                     </div>
-                    <p className="text-charcoal-black/80 dark:text-soft-lavender/80 text-sm mb-4 flex-grow">{t(post.summaryKey)}</p>
+                    <p className="text-charcoal-black/80 dark:text-soft-lavender/80 text-sm mb-4 flex-grow">{getSummary(post)}</p>
                     <Link to={`/blog/${post.id}`} className="mt-auto text-neon-lime font-bold hover:underline self-start">
                         {t('blog_read_more')}
                     </Link>
@@ -74,9 +84,9 @@ const Blog: React.FC<{ id: string }> = ({ id }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredPosts = useMemo(() => {
-    return blogPostsData.filter(post => {
-      const title = t(post.titleKey).toLowerCase();
-      const summary = t(post.summaryKey).toLowerCase();
+    return allBlogPosts.filter(post => {
+      const title = (post.id.startsWith('post') ? t(post.titleKey) : post.titleKey).toLowerCase();
+      const summary = (post.id.startsWith('post') ? t(post.summaryKey) : post.summaryKey).toLowerCase();
       const query = searchQuery.toLowerCase();
       return title.includes(query) || summary.includes(query);
     });
