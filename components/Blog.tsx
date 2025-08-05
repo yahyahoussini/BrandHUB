@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslations } from '../hooks/useTranslations';
 import type { BlogPost } from '../types';
-import { CloseIcon, SearchIcon } from './icons';
+import { SearchIcon } from './icons';
 
 const blogPostsData: BlogPost[] = Array.from({ length: 78 }, (_, i) => ({
   id: `post${i + 1}`,
@@ -15,7 +16,7 @@ const blogPostsData: BlogPost[] = Array.from({ length: 78 }, (_, i) => ({
 
 const POSTS_PER_PAGE = 6;
 
-const BlogPostCard: React.FC<{ post: BlogPost; onReadMore: (post: BlogPost) => void }> = ({ post, onReadMore }) => {
+const BlogPostCard: React.FC<{ post: BlogPost }> = ({ post }) => {
     const { t } = useTranslations();
     const cardRef = useRef<HTMLDivElement>(null);
     const [style, setStyle] = useState({});
@@ -47,75 +48,20 @@ const BlogPostCard: React.FC<{ post: BlogPost; onReadMore: (post: BlogPost) => v
         >
             <div className="absolute -inset-px bg-gradient-to-r from-neon-lime via-deep-purple to-neon-lime rounded-2xl blur opacity-0 group-hover:opacity-75 transition duration-500 animate-background-pan" style={{ backgroundSize: '200%' }}></div>
             <div className="relative bg-white/50 dark:bg-deep-purple/20 border border-deep-purple/10 dark:border-transparent rounded-2xl flex flex-col h-full overflow-hidden">
-                <div className="w-full h-48 overflow-hidden">
+                <Link to={`/blog/${post.id}`} className="block h-48 overflow-hidden">
                     <img src={post.imageUrl} alt={t(post.titleKey)} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                </div>
+                </Link>
                 <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="text-xl font-bold text-charcoal-black dark:text-soft-lavender mb-2">{t(post.titleKey)}</h3>
+                    <h3 className="text-xl font-bold text-charcoal-black dark:text-soft-lavender mb-2">
+                        <Link to={`/blog/${post.id}`} className="hover:text-neon-lime transition-colors">{t(post.titleKey)}</Link>
+                    </h3>
                     <div className="text-xs text-charcoal-black/60 dark:text-soft-lavender/60 mb-3">
                         <span>{t(post.authorKey)}</span> &bull; <span>{t(post.dateKey)}</span>
                     </div>
                     <p className="text-charcoal-black/80 dark:text-soft-lavender/80 text-sm mb-4 flex-grow">{t(post.summaryKey)}</p>
-                    <button onClick={() => onReadMore(post)} className="mt-auto text-neon-lime font-bold hover:underline self-start">
+                    <Link to={`/blog/${post.id}`} className="mt-auto text-neon-lime font-bold hover:underline self-start">
                         {t('blog_read_more')}
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const BlogModal: React.FC<{ post: BlogPost; onClose: () => void }> = ({ post, onClose }) => {
-    const { t, dir } = useTranslations();
-
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                onClose();
-            }
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        document.body.style.overflow = 'hidden';
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-            document.body.style.overflow = 'auto';
-        };
-    }, [onClose]);
-
-    return (
-        <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-charcoal-black/80 backdrop-blur-sm"
-            onClick={onClose}
-            aria-modal="true"
-            role="dialog"
-        >
-            <div
-                className="relative w-full max-w-4xl max-h-[90vh] bg-soft-lavender dark:bg-charcoal-black rounded-2xl shadow-2xl flex flex-col m-4 animate-fly-in"
-                onClick={(e) => e.stopPropagation()}
-                dir={dir}
-            >
-                <div className="relative w-full h-64 md:h-80 rounded-t-2xl overflow-hidden">
-                    <img src={post.imageUrl} alt={t(post.titleKey)} className="w-full h-full object-cover"/>
-                     <div className="absolute inset-0 bg-gradient-to-t from-charcoal-black/70 to-transparent"></div>
-                </div>
-
-                <div className="absolute top-0 left-0 right-0 p-8 text-white">
-                     <h2 className="text-3xl md:text-4xl font-black text-white">{t(post.titleKey)}</h2>
-                      <div className="text-sm text-soft-lavender/80 mt-2">
-                        <span>{t(post.authorKey)}</span> &bull; <span>{t(post.dateKey)}</span>
-                    </div>
-                </div>
-
-                <button
-                    onClick={onClose}
-                    className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center bg-charcoal-black/50 text-white rounded-full hover:bg-neon-lime hover:text-charcoal-black transition-colors duration-300"
-                    aria-label={t('blog_close')}
-                >
-                    <CloseIcon />
-                </button>
-
-                <div className="p-8 overflow-y-auto">
-                    <div className="prose dark:prose-invert max-w-none text-charcoal-black dark:text-soft-lavender" dangerouslySetInnerHTML={{ __html: t(post.contentKey).replace(/\n/g, '<br />') }} />
+                    </Link>
                 </div>
             </div>
         </div>
@@ -124,7 +70,6 @@ const BlogModal: React.FC<{ post: BlogPost; onClose: () => void }> = ({ post, on
 
 const Blog: React.FC<{ id: string }> = ({ id }) => {
   const { t } = useTranslations();
-  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [visiblePostsCount, setVisiblePostsCount] = useState(POSTS_PER_PAGE);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -136,14 +81,6 @@ const Blog: React.FC<{ id: string }> = ({ id }) => {
       return title.includes(query) || summary.includes(query);
     });
   }, [searchQuery, t]);
-
-  const handleOpenModal = (post: BlogPost) => {
-    setSelectedPost(post);
-  };
-
-  const handleCloseModal = () => {
-    setSelectedPost(null);
-  };
 
   const handleViewMore = () => {
     setVisiblePostsCount(prevCount => prevCount + POSTS_PER_PAGE);
@@ -179,7 +116,7 @@ const Blog: React.FC<{ id: string }> = ({ id }) => {
         {postsToShow.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {postsToShow.map(post => (
-              <BlogPostCard key={post.id} post={post} onReadMore={handleOpenModal} />
+              <BlogPostCard key={post.id} post={post} />
             ))}
           </div>
         ) : (
@@ -199,7 +136,6 @@ const Blog: React.FC<{ id: string }> = ({ id }) => {
           </div>
         )}
       </div>
-      {selectedPost && <BlogModal post={selectedPost} onClose={handleCloseModal} />}
     </section>
   );
 };
