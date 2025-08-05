@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Helmet } from 'react-helmet-async';
+import { useDocumentHead } from '../hooks/useDocumentHead';
 import Hero from '../components/Hero';
 import WhoWeAre from '../components/WhoWeAre';
 import Team from '../components/Team';
@@ -60,6 +60,45 @@ const StickyElements = ({ onMenuToggle, isMenuOpen }: { onMenuToggle: () => void
 export default function HomePage() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+    useDocumentHead({
+        title: 'Expert Brand Building & Branding Services in Morocco | BrandHUB',
+        description: 'BrandHUB is a leading creative agency in Morocco specializing in brand building, branding, and 3D interactive experiences. We help businesses in Morocco and the Middle East build strong, memorable brands.',
+        links: [
+            { rel: 'alternate', href: 'https://brand-hub-4o1a.vercel.app/en-ma', hreflang: 'en-MA' },
+            { rel: 'alternate', href: 'https://brand-hub-4o1a.vercel.app/fr-ma', hreflang: 'fr-MA' },
+            { rel: 'alternate', href: 'https://brand-hub-4o1a.vercel.app/ar-ma', hreflang: 'ar-MA' },
+            { rel: 'alternate', href: 'https://brand-hub-4o1a.vercel.app/', hreflang: 'x-default' },
+        ],
+        script: {
+            type: 'application/ld+json',
+            innerHTML: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "name": "BrandHUB",
+                "url": "https://brand-hub-4o1a.vercel.app/",
+                "logo": "https://brand-hub-4o1a.vercel.app/logo.png", // Replace with your actual logo URL
+                "contactPoint": {
+                  "@type": "ContactPoint",
+                  "telephone": "+212-522-000-000", // Replace with your actual phone number
+                  "contactType": "customer service"
+                },
+                "address": {
+                  "@type": "PostalAddress",
+                  "streetAddress": "123 Main Street", // Replace with your actual address
+                  "addressLocality": "Casablanca",
+                  "addressRegion": "CAS",
+                  "postalCode": "20000",
+                  "addressCountry": "MA"
+                },
+                "sameAs": [
+                  "https://www.facebook.com/your-profile", // Replace with your actual social media URLs
+                  "https://www.twitter.com/your-profile",
+                  "https://www.linkedin.com/company/your-company"
+                ]
+            })
+        }
+    });
+
     const sectionIds = {
         whoWeAre: 'who-we-are',
         services: 'services',
@@ -75,50 +114,6 @@ export default function HomePage() {
 
     return (
         <main>
-            <Helmet>
-                <title>Expert Brand Building & Branding Services in Morocco | BrandHUB</title>
-                <meta name="description" content="BrandHUB is a leading creative agency in Morocco specializing in brand building, branding, and 3D interactive experiences. We help businesses in Morocco and the Middle East build strong, memorable brands." />
-
-                {/*
-                  Hreflang tags are crucial for international SEO.
-                  These links tell Google that you have different versions of your page for different languages and regions.
-                  You should replace 'https://brand-hub-4o1a.vercel.app' with your actual domain and create these language-specific URLs.
-                */}
-                <link rel="alternate" href="https://brand-hub-4o1a.vercel.app/en-ma" hreflang="en-MA" />
-                <link rel="alternate" href="https://brand-hub-4o1a.vercel.app/fr-ma" hreflang="fr-MA" />
-                <link rel="alternate" href="https://brand-hub-4o1a.vercel.app/ar-ma" hreflang="ar-MA" />
-                <link rel="alternate" href="https://brand-hub-4o1a.vercel.app/" hreflang="x-default" />
-
-                <script type="application/ld+json">
-                    {`
-                      {
-                        "@context": "https://schema.org",
-                        "@type": "Organization",
-                        "name": "BrandHUB",
-                        "url": "https://brand-hub-4o1a.vercel.app/",
-                        "logo": "https://brand-hub-4o1a.vercel.app/logo.png", // Replace with your actual logo URL
-                        "contactPoint": {
-                          "@type": "ContactPoint",
-                          "telephone": "+212-522-000-000", // Replace with your actual phone number
-                          "contactType": "customer service"
-                        },
-                        "address": {
-                          "@type": "PostalAddress",
-                          "streetAddress": "123 Main Street", // Replace with your actual address
-                          "addressLocality": "Casablanca",
-                          "addressRegion": "CAS",
-                          "postalCode": "20000",
-                          "addressCountry": "MA"
-                        },
-                        "sameAs": [
-                          "https://www.facebook.com/your-profile", // Replace with your actual social media URLs
-                          "https://www.twitter.com/your-profile",
-                          "https://www.linkedin.com/company/your-company"
-                        ]
-                      }
-                    `}
-                </script>
-            </Helmet>
             <StickyElements onMenuToggle={() => setIsMenuOpen(!isMenuOpen)} isMenuOpen={isMenuOpen} />
             <Navigation isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} sectionIds={sectionIds} />
             <Hero />
