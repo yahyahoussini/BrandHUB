@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslations } from '../hooks/useTranslations';
 import type { BlogPost } from '../types';
 import { SearchIcon } from './icons';
-import generatedPosts from '../content/generated-posts.json';
+import generatedPosts from '../src/content/generated-posts.json';
 
 const originalBlogPosts: BlogPost[] = Array.from({ length: 78 }, (_, i) => ({
   id: `post${i + 1}`,
