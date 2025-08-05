@@ -1,112 +1,25 @@
 
 
-import React, { useState } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { TranslationProvider } from './hooks/useTranslations';
 import { ThemeProvider } from './hooks/useTheme';
-import Hero from './components/Hero';
-import WhoWeAre from './components/WhoWeAre';
-import Team from './components/Team';
-import About from './components/About';
-import Animation3D from './components/Animation3D';
-import Services from './components/Services';
-import Portfolio from './components/Portfolio';
-import BeforeAfter from './components/BeforeAfter';
-import Journey from './components/Journey';
-import Process from './components/Process';
-import Testimonials from './components/Testimonials';
-import Blog from './components/Blog';
-import Contact from './components/Contact';
-import Footer from './components/Footer';
-import LanguageSwitcher from './components/LanguageSwitcher';
-import ThemeSwitcher from './components/ThemeSwitcher';
-import { BrandIcon, WhatsAppIcon } from './components/icons';
-import { useTranslations } from './hooks/useTranslations';
-import Navigation from './components/Navigation';
-import MenuToggle from './components/MenuToggle';
-import { CONTACT_PHONE_NUMBER } from './config';
-
-const StickyElements = ({ onMenuToggle, isMenuOpen }: { onMenuToggle: () => void; isMenuOpen: boolean }) => {
-    const { t } = useTranslations();
-    return (
-        <>
-            <div 
-                className="fixed top-4 left-4 md:top-6 md:left-6 z-50 flex items-center space-x-2 md:space-x-3 cursor-pointer"
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                aria-label="Scroll to top"
-            >
-                <BrandIcon className="w-8 h-8 md:w-10 md:h-10" />
-                <span className="font-black text-lg md:text-xl text-charcoal-black dark:text-soft-lavender tracking-tighter">BrandHub</span>
-            </div>
-            <div className="fixed top-4 right-4 md:top-6 md:right-6 z-[60] flex items-center space-x-2">
-                <ThemeSwitcher />
-                <LanguageSwitcher />
-                <MenuToggle onToggle={onMenuToggle} isOpen={isMenuOpen} />
-            </div>
-            <a
-                href={`https://wa.me/${CONTACT_PHONE_NUMBER}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={t('whatsapp_cta')}
-                className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 group"
-            >
-                <div className="relative">
-                    <div className="absolute -inset-0.5 bg-neon-lime rounded-full blur-lg opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse-glow"></div>
-                    <button className="relative flex items-center justify-center w-14 h-14 md:w-16 md:h-16 bg-neon-lime rounded-full text-charcoal-black transform transition-transform group-hover:scale-110 duration-300">
-                        <WhatsAppIcon className="w-7 h-7 md:w-8 md:h-8" />
-                    </button>
-                </div>
-            </a>
-        </>
-    );
-};
-
-const AppContent = () => {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    
-    const sectionIds = {
-        whoWeAre: 'who-we-are',
-        services: 'services',
-        portfolio: 'portfolio',
-        process: 'process',
-        testimonials: 'testimonials',
-        blog: 'blog',
-        contact: 'contact',
-        team: 'team',
-        animation: 'animation',
-        beforeAfter: 'before-after',
-    };
-    
-    return (
-        <main>
-            <StickyElements onMenuToggle={() => setIsMenuOpen(!isMenuOpen)} isMenuOpen={isMenuOpen} />
-            <Navigation isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} sectionIds={sectionIds} />
-            <Hero />
-            <div id="content" className="relative z-10">
-                <WhoWeAre id={sectionIds.whoWeAre} />
-                <About />
-                <Services id={sectionIds.services} />
-                <Process id={sectionIds.process} />
-                <Animation3D id={sectionIds.animation} />
-                <Portfolio id={sectionIds.portfolio} />
-                <BeforeAfter id={sectionIds.beforeAfter} />
-                <Testimonials id={sectionIds.testimonials} />
-                <Journey sectionIds={sectionIds} />
-                <Contact id={sectionIds.contact} />
-                <Blog id={sectionIds.blog} />
-                <Team id={sectionIds.team} />
-                <Footer />
-            </div>
-        </main>
-    );
-};
-
+import HomePage from './pages/HomePage';
 
 export default function App() {
   return (
-    <ThemeProvider>
+    <HelmetProvider>
+      <ThemeProvider>
         <TranslationProvider>
-            <AppContent />
+          <Router>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              {/* Add other routes here as needed */}
+            </Routes>
+          </Router>
         </TranslationProvider>
-    </ThemeProvider>
+      </ThemeProvider>
+    </HelmetProvider>
   );
 }
