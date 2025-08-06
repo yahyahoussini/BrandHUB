@@ -57,13 +57,19 @@ export interface TeamMember {
   photoUrl: string;
 }
 
+export interface MultilingualString {
+  en: string;
+  fr: string;
+  ar: string;
+}
+
 export interface BlogPost {
   id: string;
-  titleKey: string;
-  summaryKey: string;
-  contentKey: string;
-  authorKey: string;
-  dateKey: string;
+  title: MultilingualString;
+  summary: MultilingualString;
+  content: MultilingualString;
+  author: MultilingualString;
+  date: MultilingualString;
   imageUrl: string;
 }
 
