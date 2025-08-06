@@ -1,28 +1,30 @@
 
 
-import React, { useState } from 'react';
+import React, { useState, lazy } from 'react';
 import { TranslationProvider } from './hooks/useTranslations';
 import { ThemeProvider } from './hooks/useTheme';
 import Hero from './components/Hero';
-import WhoWeAre from './components/WhoWeAre';
-import Team from './components/Team';
-import About from './components/About';
-import Animation3D from './components/Animation3D';
-import Services from './components/Services';
-import Portfolio from './components/Portfolio';
-import BeforeAfter from './components/BeforeAfter';
-import Journey from './components/Journey';
-import Process from './components/Process';
-import Testimonials from './components/Testimonials';
-import Blog from './components/Blog';
-import Contact from './components/Contact';
-import Footer from './components/Footer';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import ThemeSwitcher from './components/ThemeSwitcher';
 import { BrandIcon, WhatsAppIcon } from './components/icons';
 import { useTranslations } from './hooks/useTranslations';
 import Navigation from './components/Navigation';
 import MenuToggle from './components/MenuToggle';
+import LazyComponent from './components/LazyComponent';
+
+const WhoWeAre = lazy(() => import('./components/WhoWeAre'));
+const Team = lazy(() => import('./components/Team'));
+const About = lazy(() => import('./components/About'));
+const Animation3D = lazy(() => import('./components/Animation3D'));
+const Services = lazy(() => import('./components/Services'));
+const Portfolio = lazy(() => import('./components/Portfolio'));
+const BeforeAfter = lazy(() => import('./components/BeforeAfter'));
+const Journey = lazy(() => import('./components/Journey'));
+const Process = lazy(() => import('./components/Process'));
+const Testimonials = lazy(() => import('./components/Testimonials'));
+const Blog = lazy(() => import('./components/Blog'));
+const Contact = lazy(() => import('./components/Contact'));
+const Footer = lazy(() => import('./components/Footer'));
 
 const StickyElements = ({ onMenuToggle, isMenuOpen }: { onMenuToggle: () => void; isMenuOpen: boolean }) => {
     const { t } = useTranslations();
@@ -59,6 +61,12 @@ const StickyElements = ({ onMenuToggle, isMenuOpen }: { onMenuToggle: () => void
     );
 };
 
+const SectionFallback = () => (
+    <div className="h-screen flex justify-center items-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-deep-purple"></div>
+    </div>
+);
+
 const AppContent = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     
@@ -81,19 +89,45 @@ const AppContent = () => {
             <Navigation isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} sectionIds={sectionIds} />
             <Hero />
             <div id="content" className="relative z-10">
-                <WhoWeAre id={sectionIds.whoWeAre} />
-                <About />
-                <Services id={sectionIds.services} />
-                <Process id={sectionIds.process} />
-                <Animation3D id={sectionIds.animation} />
-                <Portfolio id={sectionIds.portfolio} />
-                <BeforeAfter id={sectionIds.beforeAfter} />
-                <Testimonials id={sectionIds.testimonials} />
-                <Journey sectionIds={sectionIds} />
-                <Contact id={sectionIds.contact} />
-                <Blog id={sectionIds.blog} />
-                <Team id={sectionIds.team} />
-                <Footer />
+                <LazyComponent fallback={<SectionFallback />}>
+                    <WhoWeAre id={sectionIds.whoWeAre} />
+                </LazyComponent>
+                <LazyComponent fallback={<SectionFallback />}>
+                    <About />
+                </LazyComponent>
+                <LazyComponent fallback={<SectionFallback />}>
+                    <Services id={sectionIds.services} />
+                </LazyComponent>
+                <LazyComponent fallback={<SectionFallback />}>
+                    <Process id={sectionIds.process} />
+                </LazyComponent>
+                <LazyComponent fallback={<SectionFallback />}>
+                    <Animation3D id={sectionIds.animation} />
+                </LazyComponent>
+                <LazyComponent fallback={<SectionFallback />}>
+                    <Portfolio id={sectionIds.portfolio} />
+                </LazyComponent>
+                <LazyComponent fallback={<SectionFallback />}>
+                    <BeforeAfter id={sectionIds.beforeAfter} />
+                </LazyComponent>
+                <LazyComponent fallback={<SectionFallback />}>
+                    <Testimonials id={sectionIds.testimonials} />
+                </LazyComponent>
+                <LazyComponent fallback={<SectionFallback />}>
+                    <Journey sectionIds={sectionIds} />
+                </LazyComponent>
+                <LazyComponent fallback={<SectionFallback />}>
+                    <Contact id={sectionIds.contact} />
+                </LazyComponent>
+                <LazyComponent fallback={<SectionFallback />}>
+                    <Blog id={sectionIds.blog} />
+                </LazyComponent>
+                <LazyComponent fallback={<SectionFallback />}>
+                    <Team id={sectionIds.team} />
+                </LazyComponent>
+                <LazyComponent fallback={<SectionFallback />}>
+                    <Footer />
+                </LazyComponent>
             </div>
         </main>
     );
