@@ -8,47 +8,33 @@ import newPosts from '../src/content/200-real-posts.json';
 
 const originalBlogPosts: BlogPost[] = Array.from({ length: 78 }, (_, i) => ({
   id: `post${i + 1}`,
-  title: {
-    en: `Original Post ${i + 1} Title`,
-    fr: `[FR] Original Post ${i + 1} Title`,
-    ar: `[AR] Original Post ${i + 1} Title`
-  },
-  summary: {
-    en: `This is the summary for the original post number ${i + 1}.`,
-    fr: `[FR] This is the summary for the original post number ${i + 1}.`,
-    ar: `[AR] This is the summary for the original post number ${i + 1}.`
-  },
-  content: {
-    en: `This is the full content for the original post number ${i + 1}. The content would be much longer and would be retrieved from a translation file.`,
-    fr: `[FR] This is the full content for the original post number ${i + 1}. The content would be much longer and would be retrieved from a translation file.`,
-    ar: `[AR] This is the full content for the original post number ${i + 1}. The content would be much longer and would be retrieved from a translation file.`
-  },
-  author: {
-    en: "Original Author",
-    fr: "Auteur Original",
-    ar: "المؤلف الأصلي"
-  },
-  date: {
-    en: `July ${31 - (i % 31)}-2025`,
-    fr: `[FR] July ${31 - (i % 31)}-2025`,
-    ar: `[AR] July ${31 - (i % 31)}-2025`
-  },
+  titleKey: `post${i + 1}_title`,
+  summaryKey: `post${i + 1}_summary`,
+  contentKey: `post${i + 1}_content`,
+  authorKey: `post${i + 1}_author`,
+  dateKey: `post${i + 1}_date`,
   imageUrl: `https://picsum.photos/seed/blog${i + 1}/600/400`,
 }));
 
-const allBlogPosts = [...originalBlogPosts, ...newPosts];
+const allBlogPosts = [...originalBlogPosts, ...(newPosts as BlogPost[])];
 
 export default function BlogPostPage() {
     const { postId } = useParams<{ postId: string }>();
-    const { language } = useTranslations();
+    const { t, language } = useTranslations();
     const post = allBlogPosts.find(p => p.id === postId);
 
-    const postTitle = post ? post.title[language] : 'Post Not Found';
-    const postContent = post ? post.content[language] : 'The blog post you are looking for could not be found.';
+    // Helper functions to handle both data structures
+    const getTitle = (p: BlogPost) => p.title ? p.title[language] : t(p.titleKey!);
+    const getSummary = (p: BlogPost) => p.summary ? p.summary[language] : t(p.summaryKey!);
+    const getContent = (p: BlogPost) => p.content ? p.content[language] : t(p.contentKey!);
+    const getAuthor = (p: BlogPost) => p.author ? p.author[language] : t(p.authorKey!);
+    const getDate = (p: BlogPost) => p.date ? p.date[language] : t(p.dateKey!);
+
+    const postTitle = post ? getTitle(post) : 'Post Not Found';
 
     useDocumentHead({
         title: `${postTitle} | BrandHUB Blog`,
-        description: post ? post.summary[language] : 'Blog post from BrandHUB, a creative agency in Morocco.',
+        description: post ? getSummary(post) : 'Blog post from BrandHUB, a creative agency in Morocco.',
     });
 
     if (!post) {
@@ -76,13 +62,13 @@ export default function BlogPostPage() {
                         </Link>
                     </div>
                     <h1 className="text-4xl md:text-5xl font-black text-charcoal-black dark:text-soft-lavender mb-4">
-                        {post.title[language]}
+                        {getTitle(post)}
                     </h1>
                     <div className="text-sm text-charcoal-black/60 dark:text-soft-lavender/60 mb-8">
-                        <span>By {post.author[language]}</span> &bull; <span>{post.date[language]}</span>
+                        <span>By {getAuthor(post)}</span> &bull; <span>{getDate(post)}</span>
                     </div>
-                    <img src={post.imageUrl} alt={post.title[language]} className="w-full h-auto object-cover rounded-2xl mb-8" />
-                    <div className="prose dark:prose-invert max-w-none text-lg" dangerouslySetInnerHTML={{ __html: post.content[language].replace(/\n/g, '<br />') }} />
+                    <img src={post.imageUrl} alt={getTitle(post)} className="w-full h-auto object-cover rounded-2xl mb-8" />
+                    <div className="prose dark:prose-invert max-w-none text-lg" dangerouslySetInnerHTML={{ __html: getContent(post).replace(/\n/g, '<br />') }} />
                 </div>
             </div>
             <Footer />

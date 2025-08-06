@@ -3,44 +3,26 @@ import { Link } from 'react-router-dom';
 import { useTranslations } from '../hooks/useTranslations';
 import type { BlogPost } from '../types';
 import { SearchIcon } from './icons';
-import newPosts from '../src/content/200-real-posts.json';
+import newPosts from '../src/content/generated-posts.json';
 
 const originalBlogPosts: BlogPost[] = Array.from({ length: 78 }, (_, i) => ({
   id: `post${i + 1}`,
-  title: {
-    en: `Original Post ${i + 1} Title`,
-    fr: `[FR] Original Post ${i + 1} Title`,
-    ar: `[AR] Original Post ${i + 1} Title`
-  },
-  summary: {
-    en: `This is the summary for the original post number ${i + 1}.`,
-    fr: `[FR] This is the summary for the original post number ${i + 1}.`,
-    ar: `[AR] This is the summary for the original post number ${i + 1}.`
-  },
-  content: {
-    en: `This is the full content for the original post number ${i + 1}. The content would be much longer and would be retrieved from a translation file.`,
-    fr: `[FR] This is the full content for the original post number ${i + 1}. The content would be much longer and would be retrieved from a translation file.`,
-    ar: `[AR] This is the full content for the original post number ${i + 1}. The content would be much longer and would be retrieved from a translation file.`
-  },
-  author: {
-    en: "Original Author",
-    fr: "Auteur Original",
-    ar: "المؤلف الأصلي"
-  },
-  date: {
-    en: `July ${31 - (i % 31)}-2025`,
-    fr: `[FR] July ${31 - (i % 31)}-2025`,
-    ar: `[AR] July ${31 - (i % 31)}-2025`
-  },
+  titleKey: `post${i + 1}_title`,
+  summaryKey: `post${i + 1}_summary`,
+  contentKey: `post${i + 1}_content`,
+  authorKey: `post${i + 1}_author`,
+  dateKey: `post${i + 1}_date`,
   imageUrl: `https://picsum.photos/seed/blog${i + 1}/600/400`,
 }));
 
-const allBlogPosts = [...originalBlogPosts, ...newPosts];
+// The 'newPosts' are already in the new multilingual format.
+// We just need to cast them to the BlogPost type to satisfy TypeScript.
+const allBlogPosts = [...originalBlogPosts, ...(newPosts as BlogPost[])];
 
 const POSTS_PER_PAGE = 6;
 
 const BlogPostCard: React.FC<{ post: BlogPost }> = ({ post }) => {
-    const { language } = useTranslations();
+    const { t, language } = useTranslations();
     const cardRef = useRef<HTMLDivElement>(null);
     const [style, setStyle] = useState({});
 
@@ -61,6 +43,12 @@ const BlogPostCard: React.FC<{ post: BlogPost }> = ({ post }) => {
         });
     };
 
+    // Helper functions to handle both data structures
+    const getTitle = (post: BlogPost) => post.title ? post.title[language] : t(post.titleKey!);
+    const getSummary = (post: BlogPost) => post.summary ? post.summary[language] : t(post.summaryKey!);
+    const getAuthor = (post: BlogPost) => post.author ? post.author[language] : t(post.authorKey!);
+    const getDate = (post: BlogPost) => post.date ? post.date[language] : t(post.dateKey!);
+
     return (
         <div
             ref={cardRef}
@@ -72,16 +60,16 @@ const BlogPostCard: React.FC<{ post: BlogPost }> = ({ post }) => {
             <div className="absolute -inset-px bg-gradient-to-r from-neon-lime via-deep-purple to-neon-lime rounded-2xl blur opacity-0 group-hover:opacity-75 transition duration-500 animate-background-pan" style={{ backgroundSize: '200%' }}></div>
             <div className="relative bg-white/50 dark:bg-deep-purple/20 border border-deep-purple/10 dark:border-transparent rounded-2xl flex flex-col h-full overflow-hidden">
                 <Link to={`/blog/${post.id}`} className="block h-48 overflow-hidden">
-                    <img src={post.imageUrl} alt={post.title[language]} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    <img src={post.imageUrl} alt={getTitle(post)} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 </Link>
                 <div className="p-6 flex flex-col flex-grow">
                     <h3 className="text-xl font-bold text-charcoal-black dark:text-soft-lavender mb-2">
-                        <Link to={`/blog/${post.id}`} className="hover:text-neon-lime transition-colors">{post.title[language]}</Link>
+                        <Link to={`/blog/${post.id}`} className="hover:text-neon-lime transition-colors">{getTitle(post)}</Link>
                     </h3>
                     <div className="text-xs text-charcoal-black/60 dark:text-soft-lavender/60 mb-3">
-                        <span>{post.author[language]}</span> &bull; <span>{post.date[language]}</span>
+                        <span>{getAuthor(post)}</span> &bull; <span>{getDate(post)}</span>
                     </div>
-                    <p className="text-charcoal-black/80 dark:text-soft-lavender/80 text-sm mb-4 flex-grow">{post.summary[language]}</p>
+                    <p className="text-charcoal-black/80 dark:text-soft-lavender/80 text-sm mb-4 flex-grow">{getSummary(post)}</p>
                     <Link to={`/blog/${post.id}`} className="mt-auto text-neon-lime font-bold hover:underline self-start">
                         Read More
                     </Link>
@@ -98,12 +86,12 @@ const Blog: React.FC<{ id: string }> = ({ id }) => {
 
   const filteredPosts = useMemo(() => {
     return allBlogPosts.filter(post => {
-      const title = post.title[language].toLowerCase();
-      const summary = post.summary[language].toLowerCase();
+      const title = (post.title ? post.title[language] : t(post.titleKey!)).toLowerCase();
+      const summary = (post.summary ? post.summary[language] : t(post.summaryKey!)).toLowerCase();
       const query = searchQuery.toLowerCase();
       return title.includes(query) || summary.includes(query);
     });
-  }, [searchQuery, language]);
+  }, [searchQuery, language, t]);
 
   const handleViewMore = () => {
     setVisiblePostsCount(prevCount => prevCount + POSTS_PER_PAGE);

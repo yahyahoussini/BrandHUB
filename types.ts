@@ -65,12 +65,19 @@ export interface MultilingualString {
 
 export interface BlogPost {
   id: string;
-  title: MultilingualString;
-  summary: MultilingualString;
-  content: MultilingualString;
-  author: MultilingualString;
-  date: MultilingualString;
   imageUrl: string;
+  // For original posts, which use translation keys
+  titleKey?: string;
+  summaryKey?: string;
+  contentKey?: string;
+  authorKey?: string;
+  dateKey?: string;
+  // For new, real-content posts
+  title?: MultilingualString;
+  summary?: MultilingualString;
+  content?: MultilingualString;
+  author?: MultilingualString;
+  date?: MultilingualString;
 }
 
 export interface TranslationContextType {
